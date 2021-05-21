@@ -46,7 +46,7 @@ class SingleRNN(nn.Module):
         self.hidden_size = hidden_size
         self.dropout = nn.Dropout(p = 0.2)
         
-        self.rnn = nn.GRU(input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, dropout=0.25)
+        self.rnn = nn.RNN(input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, dropout=0.25)
         
         self.fc = nn.Linear(hidden_size, num_classes)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -64,4 +64,6 @@ class SingleRNN(nn.Module):
 
         return out
 
+   
+class GRU(nn.Module):
 
