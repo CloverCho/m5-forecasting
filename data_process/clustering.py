@@ -16,7 +16,7 @@ def make_cluster(data_path = '../data'):
 
     wdays = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri']
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    events = ['MemorialDay', 'NBAFinalsStart', 'Ramadan starts', 'NBAFinalsEnd', 'Father\'s Day']
+    events = ['MemorialDay', 'NBAFinalsStart', 'Ramadan starts', 'NBAFinalsEnd', 'Father\'s day']
 
 
     cal_path = os.path.join(data_path, './calendar.csv')
