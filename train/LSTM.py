@@ -9,17 +9,24 @@ from fastprogress import master_bar, progress_bar
 
 
 class singleLSTM():
-    def __init__(trainX, trainY, testX, testY0):
+    def __init__(self, trainX, trainY, testX, testY, hidden_size = 512):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.num_layers = 1
+       
         self.trainX = trainX
         self.trainY = trainY
         self.testX = testX
         self.testY = testY
+
+        self.hidden_size = hidden_size
+        self.input_size = np.array(self.trainX.shape)[2]
+        self.num_classes = np.array(self.trainX.shape)[2]
         
+        self.model = LSTM(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
+
         
 
-    def slidng_windows(data, seq_length):
+    def slidng_windows(self, data, seq_length):
         x = []
         y = []
 
@@ -32,12 +39,9 @@ class singleLSTM():
         return np.array(x), np.array(y)
 
 
-    def train(num_epochs = 30, lr = 1e-3, hidden_size = 512):
+    def train(self, num_epochs = 30, lr = 1e-3):
         
-        self.input_size = np.array(self.trainX.shape)[2]
-        self.num_classes = np.array(self.trainX.shape)[2]
-        self.model = LSTM(self.num_classes, self.input_size, hidden_size, self.num_layers).to(self.device)
-
+        
         criterion = RMELoss.to(self.device)
         optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=1e-5)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=500, factor=0.5, min_lr=1e-7, eps=1e-08)
