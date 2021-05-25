@@ -5,12 +5,9 @@ import numpy as np
 import pandas as pd
 
 from sklearn.preprocessing import StandardScaler
-from fastprogress import master_bar, progress_bar
 
 from data_process.clustering import make_cluster
-from model.model import LSTM
-from model.losses import RMELoss
-from train.LSTM import singleLSTM
+from train.LSTM import singleLSTM_Train
 
 
 def main():
@@ -62,7 +59,7 @@ def main():
 
 
 
-            model_lstm1 = singleLSTM(X, train_ratio=0.67, hidden_size=512)
+            model_lstm1 = singleLSTM_Train(X, train_ratio=0.67, hidden_size=512)
             loss_lstm1, vali_loss_lstm1 = model_lstm1.train(num_epochs=num_epochs, lr=lr)
             print("Epoch: %d,  loss: %1.5f,  validation loss: %1.5f" % (num_epochs, loss_lstm1, vali_loss_lstm1))
 

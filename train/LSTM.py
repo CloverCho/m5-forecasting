@@ -2,12 +2,12 @@ import torch
 import numpy as np
 import pandas as pd
 
-from model.model import LSTM
+from model.model import singleLSTM
 from model.losses import RMELoss
 from fastprogress import master_bar, progress_bar
 
 
-class singleLSTM():
+class singleLSTM_Train():
     def __init__(self, X, train_ratio = 0.67, hidden_size = 512):
         #self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.device = torch.device('cpu')
@@ -29,7 +29,7 @@ class singleLSTM():
         self.input_size = np.array(self.trainX.shape)[2]
         self.num_classes = np.array(self.trainX.shape)[2]
         
-        self.model = LSTM(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
+        self.model = singleLSTM(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
 
         
 

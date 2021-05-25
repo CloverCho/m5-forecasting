@@ -3,12 +3,12 @@ import torch.nn as nn
 
 
 
-class LSTM(nn.Module):
+class singleLSTM(nn.Module):
 
     
 
     def __init__(self, num_classes, input_size, hidden_size, num_layers):
-        super(LSTM, self).__init__()
+        super(singleLSTM, self).__init__()
 
         self.num_classes = num_classes
         self.num_layers = num_layers
@@ -30,7 +30,7 @@ class LSTM(nn.Module):
         ula, (h_out, _) = self.lstm(x, (h_0, c_0))
         h_out = h_out.view(-1, self.hidden_size)
         out = self.fc(h_out)
-        out = self.dropout(out)
+        #out = self.dropout(out)
 
         return out
 
