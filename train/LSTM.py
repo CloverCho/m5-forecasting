@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-
+import pandas as pd
 
 from model.model import LSTM
 from model.losses import RMELoss
@@ -10,7 +10,8 @@ from fastprogress import master_bar, progress_bar
 
 class singleLSTM():
     def __init__(self, trainX, trainY, testX, testY, hidden_size = 512):
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        #self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cpu')
         self.num_layers = 1
        
         self.trainX = trainX
@@ -42,10 +43,43 @@ class singleLSTM():
     def train(self, num_epochs = 30, lr = 1e-3):
         
         
-        criterion = RMELoss.to(self.device)
+        criterion = RMELoss().to(self.device)
         optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=1e-5)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=500, factor=0.5, min_lr=1e-7, eps=1e-08)
 
 
         # Train the model
-  
+        for epoch in progress_bar(range(num_epochs)):
+            self.model.train()
+            outputs = self.model(self.trainX.to(self.device))
+            optimizer.zero_grad()
+
+            # obtain the loss function
+            loss = criterion(outputs, self.trainY.to(self.device))
+            valid = self.model(self.testX.to(self.device))
+            vali_loss = criterion(valid, self.testY.to(self.device))
+            scheduler.step(vali_loss)
+
+        return loss.cpu().item(), vali_loss.cpu().item()
+    
+
+    def predict(self, pred_X):
+        
+        self.model.eval()        
+        pred_data = torch.Tensor(np.expand_dims(np.array(pred_X), axis=0))
+        
+
+        pred_d1914 = self.model(pred_data.to(self.device)).cpu().data.numpy()
+        pred_y = np.copy(pred_d1914)
+
+        for i in range(1, 28):
+            pred_data = np.array(pred_X[i:])
+            pred_data = np.concatenate((pred_data, pred_y), axis=0)
+            pred_data = torch.Tensor(np.expand_dims(pred_data, axis=0))
+            pred_result = self.model(pred_data.to(self.device)).cpu().data.numpy()
+            pred_y = np.concatenate((pred_y, pred_result), axis=0)
+
+        pred_y = pred_y.T
+
+        return pred_y
+

@@ -1,3 +1,4 @@
+import os 
 import torch
 import torch.nn as nn
 import numpy as np
@@ -9,22 +10,7 @@ from fastprogress import master_bar, progress_bar
 from data_process.clustering import make_cluster
 from model.model import LSTM
 from model.losses import RMELoss
-import os 
-
-
-
-def slidng_windows(data, seq_length):
-    x = []
-    y = []
-
-    for i in range(len(data) - seq_length - 1):
-        _x = data[i:(i+seq_length)]
-        _y = data[i+seq_length]
-        x.append(_x)
-        y.append(_y)
-
-    return np.array(x), np.array(y)
-
+from train.LSTM import singleLSTM
 
 
 
@@ -100,67 +86,18 @@ def main():
 
 
 
-            ############# Parameters ###################
+            ########### Parameters ###############
             num_epochs = 30
-            learning_rate = 1e-3
-            input_size = np.array(trainX.shape)[2]
-            hidden_size = 512
-            num_layers   = 1
-            num_classes = np.array(trainX.shape)[2]
+            lr = 1e-3
+            ######################################
 
-            ############ Init the Model ################
-            lstm = LSTM(num_classes, input_size, hidden_size, num_layers)
-            lstm.to(device)
+            model_lstm1 = singleLSTM(trainX=trainX, trainY=trainY, testX=testX, testY=testY, hidden_size=512)
+            loss_lstm1, vali_loss_lstm1 = model_lstm1.train(num_epochs=num_epochs, lr=lr)
+            print("Epoch: %d,  loss: %1.5f,  validation loss: %1.5f" % (num_epochs, loss_lstm1, vali_loss_lstm1))
 
-            ########### Set Criterion Optimizer and scheduler ##############
-            #criterion = torch.nn.MSELoss().to(device)
-            criterion = RMELoss().to(device)
-            optimizer = torch.optim.Adam(lstm.parameters(), lr=learning_rate, weight_decay=1e-5)
-            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=500, factor=0.5, min_lr=1e-7, eps=1e-08)
+            pred_y = model_lstm1.predict(pred_X)
 
-
-            # Train the model
-            for epoch in progress_bar(range(num_epochs)):
-                lstm.train()
-                outputs = lstm(trainX.to(device))
-                optimizer.zero_grad()
-
-                # obtain the loss function
-                loss = criterion(outputs, trainY.to(device))
-                loss.backward()
-
-                optimizer.step()
-
-                #Evaluate on test
-                lstm.eval()
-                valid = lstm(testX.to(device))
-                vall_loss = criterion(valid, testY.to(device))
-                scheduler.step(vall_loss)
-
-                if epoch % 10 == 0:
-                    print("Epoch: %d, loss: %1.5f valid loss: %1.5f " % (epoch, loss.cpu().item(),vall_loss.cpu().item()))
-
-
-            ############# Prediction ###############
-            lstm.eval()
-            
-
-            pred_data = torch.Tensor(np.expand_dims(np.array(pred_X), axis=0))
-            pred_1914 = lstm(pred_data.to(device)).cpu().data.numpy()
-            
-            pred_y = np.copy(pred_1914)
-
-
-            for i in range(1, 28):
-                pred_data = np.array(pred_X[i:])
-                pred_data = np.concatenate((pred_data, pred_y), axis=0)
-                pred_data = torch.Tensor(np.expand_dims(pred_data, axis=0))
-                pred_result = lstm(pred_data.to(device)).cpu().data.numpy()
-                pred_y = np.concatenate((pred_y, pred_result), axis = 0)
-
-            print(pred_y.shape)
-            pred_y = pred_y.T       
-            print(pred_y[:5])
+            #print(pred_y[:5])
             submission.loc[index].iloc[:,1:] = pred_y
             submission.iloc[:, 1:] = submission.iloc[:, 1:].astype(np.int16)
     
