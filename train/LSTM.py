@@ -9,16 +9,23 @@ from fastprogress import master_bar, progress_bar
 
 
 class singleLSTM():
-    def __init__(self, trainX, trainY, testX, testY, hidden_size = 512):
+    def __init__(self, X, train_ratio = 0.67, hidden_size = 512):
         #self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.device = torch.device('cpu')
-        self.num_layers = 1
        
-        self.trainX = trainX
-        self.trainY = trainY
-        self.testX = testX
-        self.testY = testY
+        seq_length = 28
+        x, y = slidng_windows(X, seq_length)
 
+        train_size = int(len(y) * train_ratio)
+        test_size = len(y) - train_size
+        
+        
+        self.trainX = torch.Tensor(np.array(x[0:train_size]))
+        self.trainY = torch.Tensor(np.array(y[0:train_size]))
+        self.testX = torch.Tensor(np.array(x[train_size:len(x)]))
+        self.testY = torch.Tensor(np.array(y[train_size:len(y)]))
+
+        self.num_layers = 1
         self.hidden_size = hidden_size
         self.input_size = np.array(self.trainX.shape)[2]
         self.num_classes = np.array(self.trainX.shape)[2]

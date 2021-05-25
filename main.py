@@ -12,19 +12,6 @@ from model.model import LSTM
 from model.losses import RMELoss
 from train.LSTM import singleLSTM
 
-def slidng_windows(self, data, seq_length):
-    x = []
-    y = []
-
-    for i in range(len(data) - seq_length - 1):
-        _x = data[i:(i+seq_length)]
-        _y = data[i+seq_length]
-        x.append(_x)
-        y.append(_y)
-
-    return np.array(x), np.array(y)
-
-
 
 def main():
 
@@ -50,52 +37,20 @@ def main():
         for index in indexs:
 
             X = stv.loc[index].astype(np.int16).T
-            print(X.head())
+            #print(X.head())
 
             pred_X = ste.loc[index].astype(np.int16).T
-            print(pred_X.head())
+            #print(pred_X.head())
 
             scaler = StandardScaler()
             scaler = scaler.fit(X)
             X = scaler.transform(X)
-            print(X.shape)
+            #print(X.shape)
 
             pred_scaler = StandardScaler()
             pred_scaler = pred_scaler.fit(pred_X)
             pred_X = pred_scaler.transform(pred_X)
-            print(pred_X.shape)
-            print('hello')
-
-
-            seq_length = 28
-            x, y = slidng_windows(X, seq_length)
-            
-
-
-            print(x.shape)
-            print(y.shape)
-
-
-
-            train_size = int(len(y) * 0.67)
-            test_size = len(y) - train_size
-
-            dataX = torch.Tensor(np.array(x))
-            dataY = torch.Tensor(np.array(y))
-
-            trainX = torch.Tensor(np.array(x[0:train_size]))
-            trainY = torch.Tensor(np.array(y[0:train_size]))
-
-            testX = torch.Tensor(np.array(x[train_size:len(x)]))
-            testY = torch.Tensor(np.array(y[train_size:len(y)]))
-
-
-
-            print("train shape is: ", trainX.size())
-            print("train label shape is: ", trainY.size())
-            print("test shape is: ", testX.size())
-            print("test label shape is: ", testY.size())
-
+            #print(pred_X.shape)
 
 
             ########### Parameters ###############
@@ -103,13 +58,13 @@ def main():
             lr = 1e-3
             ######################################
 
-            model_lstm1 = singleLSTM(trainX=trainX, trainY=trainY, testX=testX, testY=testY, hidden_size=512)
+            model_lstm1 = singleLSTM(X, train_ratio=0.67, hidden_size=512)
             loss_lstm1, vali_loss_lstm1 = model_lstm1.train(num_epochs=num_epochs, lr=lr)
             print("Epoch: %d,  loss: %1.5f,  validation loss: %1.5f" % (num_epochs, loss_lstm1, vali_loss_lstm1))
 
             pred_y = model_lstm1.predict(pred_X)
 
-            #print(pred_y[:5])
+            print(pred_y[:5])
             submission.loc[index].iloc[:,1:] = pred_y
             submission.iloc[:, 1:] = submission.iloc[:, 1:].astype(np.int16)
     
