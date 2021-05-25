@@ -33,6 +33,14 @@ def main():
     ste = pd.read_csv(ste_path).iloc[:, -28:]
     submission = pd.read_csv(sub_path)
 
+
+    ########### Parameters ###############
+    num_epochs = 30
+    lr = 1e-3
+    ######################################
+
+
+
     for indexs in [ctf_indexs, cthh_indexs, cthb_indexs, wif_indexs, wihh_indexs, wihb_indexs]:
         for index in indexs:
 
@@ -53,10 +61,6 @@ def main():
             #print(pred_X.shape)
 
 
-            ########### Parameters ###############
-            num_epochs = 30
-            lr = 1e-3
-            ######################################
 
             model_lstm1 = singleLSTM(X, train_ratio=0.67, hidden_size=512)
             loss_lstm1, vali_loss_lstm1 = model_lstm1.train(num_epochs=num_epochs, lr=lr)

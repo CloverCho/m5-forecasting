@@ -4,7 +4,6 @@ import pandas as pd
 
 from model.model import LSTM
 from model.losses import RMELoss
-from sklearn.preprocessing import StandardScaler
 from fastprogress import master_bar, progress_bar
 
 
@@ -14,7 +13,7 @@ class singleLSTM():
         self.device = torch.device('cpu')
        
         seq_length = 28
-        x, y = slidng_windows(X, seq_length)
+        x, y = self.slidng_windows(X, seq_length)
 
         train_size = int(len(y) * train_ratio)
         test_size = len(y) - train_size
