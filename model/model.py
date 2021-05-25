@@ -206,3 +206,5 @@ class GRU(nn.Module):
         out = self.fc3(x0)
         print(out.size())
         return out
+    
+# class Encoder(nn.Module):
