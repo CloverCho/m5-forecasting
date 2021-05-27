@@ -41,5 +41,23 @@ class singleGRU():
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=500, factor=0.5, min_lr=1e-7,
                                                                eps=1e-08)
 
-        # Train the model
+    def predict(self, pred_X):
+        
+        self.model.eval()        
+        pred_data = torch.Tensor(np.expand_dims(np.array(pred_X), axis=0))
+        
+
+        pred_d1914 = self.model(pred_data.to(self.device)).cpu().data.numpy()
+        pred_y = np.copy(pred_d1914)
+
+        for i in range(1, 28):
+            pred_data = np.array(pred_X[i:])
+            pred_data = np.concatenate((pred_data, pred_y), axis=0)
+            pred_data = torch.Tensor(np.expand_dims(pred_data, axis=0))
+            pred_result = self.model(pred_data.to(self.device)).cpu().data.numpy()
+            pred_y = np.concatenate((pred_y, pred_result), axis=0)
+
+        pred_y = pred_y.T
+
+        return pred_y
 
