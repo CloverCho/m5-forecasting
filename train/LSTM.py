@@ -7,7 +7,7 @@ from model.losses import RMELoss
 from fastprogress import master_bar, progress_bar
 
 
-class singleLSTM_Train():
+class LSTM_Train():
     def __init__(self, X, train_ratio=0.67, hidden_size=512):
         # self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.device = torch.device('cpu')
