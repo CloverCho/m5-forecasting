@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from model.model import SingleGRU
+from model.model import singleGRU
 from model.losses import RMELoss
 from sklearn.preprocessing import StandardScaler
 from fastprogress import master_bar, progress_bar
@@ -21,7 +21,7 @@ class singleGRU_Train():
         self.input_size = np.array(self.trainX.shape)[2]
         self.num_classes = np.array(self.trainX.shape)[2]
 
-        self.model = SingleGRU(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
+        self.model = singleGRU(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
 
     def slidng_windows(self, data, seq_length):
         x = []
