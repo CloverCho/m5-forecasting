@@ -1,13 +1,13 @@
 import torch
 import numpy as np
 
-from model.model import SingleRNN
+from model.model import singleRNN
 from model.losses import RMELoss
 from sklearn.preprocessing import StandardScaler
 from fastprogress import master_bar, progress_bar
 
 
-class singleRNN():
+class singleRNN_Train():
     def __init__(self, trainX, trainY, testX, testY, hidden_size=512):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.num_layers = 1
@@ -21,7 +21,7 @@ class singleRNN():
         self.input_size = np.array(self.trainX.shape)[2]
         self.num_classes = np.array(self.trainX.shape)[2]
 
-        self.model = SingleRNN(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
+        self.model = singleRNN(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
 
     def slidng_windows(self, data, seq_length):
         x = []
