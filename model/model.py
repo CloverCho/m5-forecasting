@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-class SingleRNN(nn.Module):
+class singleRNN(nn.Module):
 
     def __init__(self, num_classes, input_size, hidden_size, num_layers):
-        super(SingleRNN, self).__init__()
+        super(singleRNN, self).__init__()
 
         self.num_classes = num_classes
         self.num_layers = num_layers
@@ -123,10 +123,10 @@ class LSTM(nn.Module):
         return out
     
 
-class SingleGRU(nn.Module):
+class singleGRU(nn.Module):
 
     def __init__(self, num_classes, input_size, hidden_size, num_layers):
-        super(SingleGRU,self).__init__()
+        super(singleGRU,self).__init__()
 
         self.num_classes = num_classes
         self.num_layers = num_layers
@@ -136,7 +136,7 @@ class SingleGRU(nn.Module):
 
         self.gru = nn.GRU(input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, dropout=0.25)
 
-        self.fc - nn.Linear(hidden_size, num_classes)
+        self.fc = nn.Linear(hidden_size, num_classes)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
