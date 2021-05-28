@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from fastprogress import master_bar, progress_bar
 
 
-class singleGRU():
+class singleGRU_Train():
     def __init__(self, trainX, trainY, testX, testY, hidden_size=512):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.num_layers = 1
