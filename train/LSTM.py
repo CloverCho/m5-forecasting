@@ -30,7 +30,7 @@ class LSTM_Train():
 
         self.model = LSTM(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
 
-     def slidng_windows(self, data, seq_length):
+    def slidng_windows(self, data, seq_length):
         x = []
         y = []
 
