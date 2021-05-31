@@ -35,12 +35,12 @@ class GRU_Train():
         y = []
 
         for i in range(len(data) - seq_length - 1):
-            _x = data[i:(i + seq_length)]
-            _y = data[i + seq_length]
+            _x = data[i:(i + seq_length), :]
+            _y = data[i + seq_length, 0]
             x.append(_x)
             y.append(_y)
 
-        return np.array(x), np.array(y)
+        return np.array(x), np.array(y).reshape(-1, 1)
 
     def train(self, num_epochs=30, lr=1e-3):
 
