@@ -30,17 +30,17 @@ class GRU_Train():
 
         self.model = GRU(self.num_classes, self.input_size, self.hidden_size, self.num_layers).to(self.device)
 
-    def slidng_windows(self, data, seq_length):
+        def slidng_windows(self, data, seq_length):
         x = []
         y = []
 
         for i in range(len(data) - seq_length - 1):
-            _x = data[i:(i + seq_length), :]
-            _y = data[i + seq_length, 0]
+            _x = data[i:(i + seq_length)]
+            _y = data[i + seq_length]
             x.append(_x)
             y.append(_y)
 
-        return np.array(x), np.array(y).reshape(-1, 1)
+        return np.array(x), np.array(y)
 
     def train(self, num_epochs=30, lr=1e-3):
 
