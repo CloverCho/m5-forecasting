@@ -14,6 +14,8 @@ class LSTM_Train():
 
         seq_length = 28
         x, y = self.slidng_windows(X, seq_length)
+        print(x.shape)
+        print(y.shape)
 
         train_size = int(len(y) * train_ratio)
         test_size = len(y) - train_size
@@ -23,7 +25,7 @@ class LSTM_Train():
         self.testX = torch.Tensor(np.array(x[train_size:len(x)]))
         self.testY = torch.Tensor(np.array(y[train_size:len(y)]))
 
-        self.num_layers = 2
+        self.num_layers = 4
         self.hidden_size = hidden_size
         self.input_size = np.array(self.trainX.shape)[2]
         self.num_classes = np.array(self.trainX.shape)[2]
@@ -35,12 +37,12 @@ class LSTM_Train():
         y = []
 
         for i in range(len(data) - seq_length - 1):
-            _x = data[i:(i + seq_length),:]
-            _y = data[i + seq_length,0]
+            _x = data[i:(i + seq_length)]
+            _y = data[i + seq_length]
             x.append(_x)
             y.append(_y)
 
-        return np.array(x), np.array(y).reshape(-1,1)
+        return np.array(x), np.array(y)
 
     def train(self, num_epochs=30, lr=1e-3):
 
@@ -57,6 +59,7 @@ class LSTM_Train():
 
             # obtain the loss function
             loss = criterion(outputs, self.trainY.to(self.device))
+
             valid = self.model(self.testX.to(self.device))
             vali_loss = criterion(valid, self.testY.to(self.device))
             scheduler.step(vali_loss)
@@ -73,7 +76,9 @@ class LSTM_Train():
 
         for i in range(1, 28):
             pred_data = np.array(pred_X[i:])
-            pred_data = np.concatenate((pred_data, pred_y), axis=0)
+            print(pred_data.shape)
+            print(pred_y.shape)
+            pred_data = np.concatenate((pred_data, pred_y),axis=0)
             pred_data = torch.Tensor(np.expand_dims(pred_data, axis=0))
             pred_result = self.model(pred_data.to(self.device)).cpu().data.numpy()
             pred_y = np.concatenate((pred_y, pred_result), axis=0)
