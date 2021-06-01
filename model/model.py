@@ -79,15 +79,15 @@ class LSTM(nn.Module):
 
         self.LSTM = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, dropout=0.2)
 
-        self.fc1 = nn.Linear(hidden_size, 256)
-        self.bn1 = nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        self.fc1 = nn.Linear(hidden_size, 512)
+        self.bn1 = nn.BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         self.dp1 = nn.Dropout(0.2)
 
-        self.fc2 = nn.Linear(256, 128)
-        self.bn2 = nn.BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        self.fc2 = nn.Linear(512, 256)
+        self.bn2 = nn.BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         self.dp2 = nn.Dropout(0.2)
 
-        self.fc3 = nn.Linear(128,1)
+        self.fc3 = nn.Linear(256, num_classes)
 
         self.relu = nn.ReLU()
 
