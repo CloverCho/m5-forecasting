@@ -7,8 +7,11 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 from data_process.clustering import make_cluster
-from train.LSTM import singleLSTM_Train
-
+from train.SingleLSTM import singleLSTM_Train
+from train.SingleGRU import singleGRU_Train
+from train.RNN import singleRNN_Train
+from train.LSTM import LSTM_Train
+from train.GRU import GRU_Train
 
 def main():
 
@@ -57,13 +60,34 @@ def main():
             pred_X = pred_scaler.transform(pred_X)
             #print(pred_X.shape)
 
+            train_ratio = 0.67
+            hidden_size = 512
 
 
-            model_lstm1 = singleLSTM_Train(X, train_ratio=0.67, hidden_size=512)
-            loss_lstm1, vali_loss_lstm1 = model_lstm1.train(num_epochs=num_epochs, lr=lr)
-            print("Epoch: %d,  loss: %1.5f,  validation loss: %1.5f" % (num_epochs, loss_lstm1, vali_loss_lstm1))
+            model_lstm1 = singleLSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
+            model_lstm2 = LSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
+            model_rnn = singleRNN_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
+            model_gru1 = singleGRU_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
+            model_gru2 = GRU_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
+            model_opt = None
+            loss_opt = 987654321
+            vali_loss_opt = 987654321
 
-            pred_y = model_lstm1.predict(pred_X)
+            models = [model_lstm1, model_lstm2, model_gru1, model_gru2, model_rnn]
+
+
+            for idx, model in enumerate(models):
+                loss, vali_loss = model.train(num_epochs=num_epochs, lr=lr)
+                
+                if vali_loss < vali_loss_opt:
+                    loss_opt = loss
+                    vali_loss_opt = vali_loss
+                    model_opt = model
+                
+            
+            ############# Prediction ###############
+              
+            pred_y = model_opt.predict(pred_X)                
 
             print(pred_y[:5])
             submission.loc[index].iloc[:,1:] = pred_y
