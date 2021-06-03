@@ -208,36 +208,29 @@ class GRU(nn.Module):
 
 
 class Encoder(nn.Module):
-    def __init__(self, seq_len, n_features, embedding_dim=64):
+    def __init__(self, num_classes, input_size, seq_len, embedding_dim=64):
         super(Encoder, self).__init__()
 
-        self.seq_len, self.n_features = seq_len, n_features
+        self.num_classes = num_classes
+        self.input_size = input_size
+        self.seq_len = seq_len
         self.embedding_dim, self.hidden_dim = embedding_dim, embedding_dim
         self.num_layers = 3
-        self.rnn1 = nn.LSTM(
-            input_size=n_features,
-            hidden_size=self.hidden_dim,
-            num_layers=3,
-            batch_first=True,
-            dropout=0.35
-        )
+        self.lstm = nn.LSTM(input_size=self.input_size, hidden_size=self.hidden_dim, num_layers=self.num_layers, batch_first=True, dropout=0.35)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def forward(self, x):
-        x = x.reshape((1, self.seq_len, self.n_features))
+        x = x.reshape(1, self.seq_len, self.num_classes)
 
-        h_1 = Variable(torch.zeros(
-            self.num_layers, x.size(0), self.hidden_dim).to(self.device))
+        h_1 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(self.device)
 
-        c_1 = Variable(torch.zeros(
-            self.num_layers, x.size(0), self.hidden_dim).to(self.device))
+        c_1 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(self.device)
 
-        x, (hidden, cell) = self.rnn1(x, (h_1, c_1))
+        x, (hidden, cell) = self.lstm(x, (h_1, c_1))
 
         # return hidden_n.reshape((self.n_features, self.embedding_dim))
         return x, hidden, cell
-
 
 class Attention(nn.Module):
     def __init__(self, enc_hid_dim, dec_hid_dim):
@@ -278,51 +271,25 @@ class Attention(nn.Module):
 
         return F.softmax(attention, dim=1)
 
-
-class Decoder(nn.Module):
-    def __init__(self, seq_len, input_dim=64, n_features=1):
-        super(Decoder, self).__init__()
-
-        self.seq_len, self.input_dim = seq_len, input_dim
-        self.hidden_dim, self.n_features = input_dim, n_features
-
-        self.rnn1 = nn.LSTM(
-            input_size=1,
-            hidden_size=input_dim,
-            num_layers=3,
-            batch_first=True,
-            dropout=0.35
-        )
-
-        self.output_layer = nn.Linear(self.hidden_dim, n_features)
-
-    def forward(self, x, input_hidden, input_cell):
-        x = x.reshape((1, 1, 1))
-
-        x, (hidden_n, cell_n) = self.rnn1(x, (input_hidden, input_cell))
-
-        x = self.output_layer(x)
-        return x, hidden_n, cell_n
-
-
 class AttentionDecoder(nn.Module):
-    def __init__(self, seq_len, attention, input_dim=64, n_features=1, encoder_hidden_state=512):
+    def __init__(self, seq_len, attention, num_classes, input_dim=64, encoder_hidden_state=512):
         super(AttentionDecoder, self).__init__()
 
         self.seq_len, self.input_dim = seq_len, input_dim
-        self.hidden_dim, self.n_features = input_dim, n_features
+        self.hidden_dim, self.num_classes = input_dim, num_classes
         self.attention = attention
 
         self.rnn1 = nn.LSTM(
             # input_size=1,
-            input_size=encoder_hidden_state + 1,  # Encoder Hidden State + One Previous input
+            input_size=encoder_hidden_state + self.num_classes,  # Encoder Hidden State + One Previous input
             hidden_size=input_dim,
             num_layers=3,
             batch_first=True,
             dropout=0.35
         )
 
-        self.output_layer = nn.Linear(self.hidden_dim * 2, n_features)
+        self.output_layer = nn.Linear(self.hidden_dim * 2, num_classes)
+
 
     def forward(self, x, input_hidden, input_cell, encoder_outputs):
         a = self.attention(input_hidden, encoder_outputs)
@@ -337,7 +304,7 @@ class AttentionDecoder(nn.Module):
 
         weighted = torch.bmm(a, encoder_outputs)
 
-        x = x.reshape((1, 1, 1))
+        x = x.reshape((1, 1, self.num_classes))
 
         rnn_input = torch.cat((x, weighted), dim=2)
 
@@ -353,21 +320,27 @@ class AttentionDecoder(nn.Module):
 
 class Seq2Seq(nn.Module):
 
-    def __init__(self, seq_len, n_features, embedding_dim=64, output_length=28):
+    def __init__(self, seq_len, num_classes, input_size, embedding_dim=64, output_length=28):
         super(Seq2Seq, self).__init__()
 
-        self.encoder = Encoder(seq_len, n_features, embedding_dim).to(device)
+        self.num_classes = num_classes
+
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        self.encoder = Encoder(self.num_classes, input_size, seq_len, embedding_dim).to(self.device)
         self.attention = Attention(512, 512)
         self.output_length = output_length
-        self.decoder = AttentionDecoder(seq_len, self.attention, embedding_dim, n_features).to(device)
+        self.decoder = AttentionDecoder(seq_len, self.attention, self.num_classes,embedding_dim).to(self.device)
 
     def forward(self, x, prev_y):
+
         encoder_output, hidden, cell = self.encoder(x)
 
         # Prepare place holder for decoder output
         targets_ta = []
         # prev_output become the next input to the LSTM cell
         prev_output = prev_y
+        # print(prev_output.size())
 
         # itearate over LSTM - according to the required output days
         for out_days in range(self.output_length):
@@ -375,7 +348,7 @@ class Seq2Seq(nn.Module):
             hidden, cell = prev_hidden, prev_cell
             prev_output = prev_x
 
-            targets_ta.append(prev_x.reshape(1))
+            targets_ta.append(prev_x.reshape(self.num_classes))
 
         targets = torch.stack(targets_ta)
 
