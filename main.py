@@ -38,6 +38,7 @@ def main():
     ########### Parameters ###############
     num_epochs = 30
     lr = 1e-3
+    lgbm_period = 30
     ######################################
 
 
@@ -67,8 +68,6 @@ def main():
             hidden_size = 512
             
 
-
-            '''
             model_lstm1 = singleLSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
             model_lstm2 = LSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
             model_rnn = singleRNN_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
@@ -99,13 +98,16 @@ def main():
             print(pred_y[:5])
             submission.loc[index].iloc[:,1:] = pred_y
             submission.iloc[:, 1:] = submission.iloc[:, 1:].astype(np.int16)
-            '''    
+                
     
-            model_lgbm = LGBM_Train(X)
+            '''
+            ########## LGBM ###################
+            model_lgbm = LGBM_Train(X, period=lgbm_period)
             model_lgbm.train()
             pred_y = model_lgbm.predict(lgbm_pred_X)
             print(pred_y[:5])
 
+            '''
     submission.to_csv(r'./submission.csv', index=False)
 
 
