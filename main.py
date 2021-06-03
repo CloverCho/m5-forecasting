@@ -12,6 +12,7 @@ from train.SingleGRU import singleGRU_Train
 from train.RNN import singleRNN_Train
 from train.LSTM import LSTM_Train
 from train.GRU import GRU_Train
+from train.LGBM import LGBM_Train
 
 def main():
 
@@ -50,6 +51,8 @@ def main():
             pred_X = ste.loc[index].astype(np.int16).T
             #print(pred_X.head())
 
+            lgbm_pred_X = ste.loc[index].astype(np.int16)
+
             scaler = StandardScaler()
             scaler = scaler.fit(X)
             X = scaler.transform(X)
@@ -62,8 +65,10 @@ def main():
 
             train_ratio = 0.67
             hidden_size = 512
+            
 
 
+            '''
             model_lstm1 = singleLSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
             model_lstm2 = LSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
             model_rnn = singleRNN_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
@@ -84,6 +89,8 @@ def main():
                     vali_loss_opt = vali_loss
                     model_opt = model
                 
+
+            
             
             ############# Prediction ###############
               
@@ -92,8 +99,13 @@ def main():
             print(pred_y[:5])
             submission.loc[index].iloc[:,1:] = pred_y
             submission.iloc[:, 1:] = submission.iloc[:, 1:].astype(np.int16)
+            '''    
     
-    
+            model_lgbm = LGBM_Train(X)
+            model_lgbm.train()
+            pred_y = model_lgbm.predict(lgbm_pred_X)
+            print(pred_y[:5])
+
     submission.to_csv(r'./submission.csv', index=False)
 
 
