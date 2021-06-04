@@ -67,7 +67,7 @@ def main():
             pred_scaler = StandardScaler()
             pred_scaler = pred_scaler.fit(pred_X)
             pred_X = pred_scaler.transform(pred_X)
-           # pred_X = scaler.transform(pred_X)
+            #pred_X = scaler.transform(pred_X)
             print(pred_X.shape)
 
 
@@ -85,8 +85,8 @@ def main():
             loss_opt = 987654321
             vali_loss_opt = 987654321
 
-            models = [model_lstm1, model_lstm2, model_gru1, model_gru2, model_rnn, model_eda]
-
+            #models = [model_lstm1, model_lstm2, model_gru1, model_gru2, model_rnn, model_eda]
+            models = [model_lstm1, model_lstm2, model_gru1, model_gru2, model_rnn]
 
             for idx, model in enumerate(models):
                 loss, vali_loss = model.train(num_epochs=num_epochs, lr=lr)

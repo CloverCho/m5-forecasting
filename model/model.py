@@ -248,7 +248,7 @@ class Attention(nn.Module):
 
         batch_size = encoder_outputs.shape[0]
         src_len = encoder_outputs.shape[1]
-#         src_len = 1
+        #src_len = 1
 
         hidden = hidden[2:3, :, :]
 
