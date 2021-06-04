@@ -4,7 +4,7 @@ import os
 from sklearn.cluster import KMeans
 
 
-def make_cluster(data_path = '../data'):
+def make_cluster(data_path = '../data', n_clusters = 5):
 
 
 
@@ -114,27 +114,21 @@ def make_cluster(data_path = '../data'):
 
     ctf_cluster_wday = ctf_cluster_wday.set_axis(wdays, axis='columns')
     ctf_cluster_month = ctf_cluster_month.set_axis(months, axis='columns')
-    print(ctf_cluster_wday.head())
-    print(ctf_cluster_month.head())
+    #print(ctf_cluster_wday.head())
+    #print(ctf_cluster_month.head())
 
     ctf_cluster = ctf_cluster_wday.merge(ctf_cluster_month, left_index=True, right_index=True, validate='1:1')
     ctf_cluster = ctf_cluster.merge(ctf_cluster_event, left_index=True, right_index=True, validate='1:1')
-    print(ctf_cluster.head())
+    #print(ctf_cluster.head())
 
 
     # Clustering
-    n_clusters = 5
+    
     km_ctf = KMeans(n_clusters = n_clusters, random_state=0).fit(ctf_cluster)
     ctf_cluster_label = km_ctf.labels_
-    print(ctf_cluster_label)
-
-    ctf_cluster_1 = ctf_cluster.iloc[ctf_cluster_label == 0, :]
-    ctf_cluster_2 = ctf_cluster.iloc[ctf_cluster_label == 1, :]
-    ctf_cluster_3 = ctf_cluster.iloc[ctf_cluster_label == 2, :]
-    ctf_cluster_4 = ctf_cluster.iloc[ctf_cluster_label == 3, :]
-    ctf_cluster_5 = ctf_cluster.iloc[ctf_cluster_label == 4, :]
-
-    print(ctf_cluster_1.head())
+    ctf_clusters = []
+    for i in range(n_clusters):
+        ctf_clusters.append(ctf_cluster.iloc[ctf_cluster_label == i, :])
 
 
 
@@ -163,17 +157,12 @@ def make_cluster(data_path = '../data'):
     cthh_cluster = cthh_cluster.merge(cthh_cluster_event, left_index=True, right_index=True, validate='1:1')
 
     # Clustering
-    n_clusters = 5
     km_cthh = KMeans(n_clusters = n_clusters, random_state=1).fit(cthh_cluster)
     cthh_cluster_label = km_cthh.labels_
 
-    cthh_cluster_1 = cthh_cluster.iloc[cthh_cluster_label == 0, :]
-    cthh_cluster_2 = cthh_cluster.iloc[cthh_cluster_label == 1, :]
-    cthh_cluster_3 = cthh_cluster.iloc[cthh_cluster_label == 2, :]
-    cthh_cluster_4 = cthh_cluster.iloc[cthh_cluster_label == 3, :]
-    cthh_cluster_5 = cthh_cluster.iloc[cthh_cluster_label == 4, :]
-
-
+    cthh_clusters = []
+    for i in range(n_clusters):
+        cthh_clusters.append(cthh_cluster.iloc[cthh_cluster_label == i, :])
 
 
     #################
@@ -200,16 +189,11 @@ def make_cluster(data_path = '../data'):
     cthb_cluster = cthb_cluster.merge(cthb_cluster_event, left_index=True, right_index=True, validate='1:1')
 
     # Clustering
-    n_clusters = 5
     km_cthb = KMeans(n_clusters = n_clusters, random_state=2).fit(cthb_cluster)
     cthb_cluster_label = km_cthb.labels_
-
-    cthb_cluster_1 = cthb_cluster.iloc[cthb_cluster_label == 0, :]
-    cthb_cluster_2 = cthb_cluster.iloc[cthb_cluster_label == 1, :]
-    cthb_cluster_3 = cthb_cluster.iloc[cthb_cluster_label == 2, :]
-    cthb_cluster_4 = cthb_cluster.iloc[cthb_cluster_label == 3, :]
-    cthb_cluster_5 = cthb_cluster.iloc[cthb_cluster_label == 4, :]
-
+    cthb_clusters = []
+    for i in range(n_clusters):
+        cthb_clusters.append(cthb_cluster.iloc[cthb_cluster_label == i, :])
 
 
     #################
@@ -236,17 +220,11 @@ def make_cluster(data_path = '../data'):
     wif_cluster = wif_cluster.merge(wif_cluster_event, left_index=True, right_index=True, validate='1:1')
 
     # Clustering
-    n_clusters = 5
     km_wif = KMeans(n_clusters = n_clusters, random_state=3).fit(wif_cluster)
     wif_cluster_label = km_wif.labels_
-
-    wif_cluster_1 = wif_cluster.iloc[wif_cluster_label == 0, :]
-    wif_cluster_2 = wif_cluster.iloc[wif_cluster_label == 1, :]
-    wif_cluster_3 = wif_cluster.iloc[wif_cluster_label == 2, :]
-    wif_cluster_4 = wif_cluster.iloc[wif_cluster_label == 3, :]
-    wif_cluster_5 = wif_cluster.iloc[wif_cluster_label == 4, :]
-
-
+    wif_clusters = []
+    for i in range(n_clusters):
+        wif_clusters.append(wif_cluster.iloc[wif_cluster_label == i, :])
 
 
     #################
@@ -273,15 +251,12 @@ def make_cluster(data_path = '../data'):
     wihh_cluster = wihh_cluster.merge(wihh_cluster_event, left_index=True, right_index=True, validate='1:1')
 
     # Clustering
-    n_clusters = 5
     km_wihh = KMeans(n_clusters = n_clusters, random_state=4).fit(wihh_cluster)
     wihh_cluster_label = km_wihh.labels_
+    wihh_clusters = []
+    for i in range(n_clusters):
+        wihh_clusters.append(wihh_cluster.iloc[wihh_cluster_label == i, :])
 
-    wihh_cluster_1 = wihh_cluster.iloc[wihh_cluster_label == 0, :]
-    wihh_cluster_2 = wihh_cluster.iloc[wihh_cluster_label == 1, :]
-    wihh_cluster_3 = wihh_cluster.iloc[wihh_cluster_label == 2, :]
-    wihh_cluster_4 = wihh_cluster.iloc[wihh_cluster_label == 3, :]
-    wihh_cluster_5 = wihh_cluster.iloc[wihh_cluster_label == 4, :]
 
 
     #################
@@ -308,71 +283,38 @@ def make_cluster(data_path = '../data'):
     wihb_cluster = wihb_cluster.merge(wihb_cluster_event, left_index=True, right_index=True, validate='1:1')
 
     # Clustering
-    n_clusters = 5
     km_wihb = KMeans(n_clusters = n_clusters, random_state=5).fit(wihb_cluster)
     wihb_cluster_label = km_wihb.labels_
-
-    wihb_cluster_1 = wihb_cluster.iloc[wihb_cluster_label == 0, :]
-    wihb_cluster_2 = wihb_cluster.iloc[wihb_cluster_label == 1, :]
-    wihb_cluster_3 = wihb_cluster.iloc[wihb_cluster_label == 2, :]
-    wihb_cluster_4 = wihb_cluster.iloc[wihb_cluster_label == 3, :]
-    wihb_cluster_5 = wihb_cluster.iloc[wihb_cluster_label == 4, :]
+    wihb_clusters = []
+    for i in range(n_clusters):
+        wihb_clusters.append(wihb_cluster.iloc[wihb_cluster_label == i, :])
 
 
+    ctf_index = []
+    cthh_index = []
+    cthb_index = []
+    wif_index = []
+    wihh_index = []
+    wihb_index = []                
 
-    print(ctf_cluster_1.head())
-    print(cthh_cluster_1.head())
-    print(cthb_cluster_1.head())
-    print(wif_cluster_1.head())
-    print(wihh_cluster_1.head())
-    print(wihb_cluster_1.head())
+    for cluster in ctf_clusters:
+        ctf_index.append(cluster.index.tolist())
 
+    for cluster in cthh_clusters:
+        cthh_index.append(cluster.index.tolist())
 
-    ctf_index_1 = ctf_cluster_1.index.tolist()
-    ctf_index_2 = ctf_cluster_2.index.tolist()
-    ctf_index_3 = ctf_cluster_3.index.tolist()
-    ctf_index_4 = ctf_cluster_4.index.tolist()
-    ctf_index_5 = ctf_cluster_5.index.tolist()
+    for cluster in cthb_clusters:
+        cthb_index.append(cluster.index.tolist())
 
-    cthh_index_1 = cthh_cluster_1.index.tolist()
-    cthh_index_2 = cthh_cluster_2.index.tolist()
-    cthh_index_3 = cthh_cluster_3.index.tolist()
-    cthh_index_4 = cthh_cluster_4.index.tolist()
-    cthh_index_5 = cthh_cluster_5.index.tolist()
+    for cluster in wif_clusters:
+        wif_index.append(cluster.index.tolist())
 
-    cthb_index_1 = cthb_cluster_1.index.tolist()
-    cthb_index_2 = cthb_cluster_2.index.tolist()
-    cthb_index_3 = cthb_cluster_3.index.tolist()
-    cthb_index_4 = cthb_cluster_4.index.tolist()
-    cthb_index_5 = cthb_cluster_5.index.tolist()
+    for cluster in wihh_clusters:
+        wihh_index.append(cluster.index.tolist())
 
-    wif_index_1 = wif_cluster_1.index.tolist()
-    wif_index_2 = wif_cluster_2.index.tolist()
-    wif_index_3 = wif_cluster_3.index.tolist()
-    wif_index_4 = wif_cluster_4.index.tolist()
-    wif_index_5 = wif_cluster_5.index.tolist()
+    for cluster in wihb_clusters:
+        wihb_index.append(cluster.index.tolist())
 
-    wihh_index_1 = wihh_cluster_1.index.tolist()
-    wihh_index_2 = wihh_cluster_2.index.tolist()
-    wihh_index_3 = wihh_cluster_3.index.tolist()
-    wihh_index_4 = wihh_cluster_4.index.tolist()
-    wihh_index_5 = wihh_cluster_5.index.tolist()                
-    
-    wihb_index_1 = wihb_cluster_1.index.tolist()
-    wihb_index_2 = wihb_cluster_2.index.tolist()
-    wihb_index_3 = wihb_cluster_3.index.tolist()
-    wihb_index_4 = wihb_cluster_4.index.tolist()
-    wihb_index_5 = wihb_cluster_5.index.tolist()
-
-
-
-    ctf_index = [ctf_index_1, ctf_index_2, ctf_index_3, ctf_index_4, ctf_index_5]
-    cthh_index = [cthh_index_1, cthh_index_2, cthh_index_3, cthh_index_4, cthh_index_5]
-    cthb_index = [cthb_index_1, cthb_index_2, cthb_index_3, cthb_index_4, cthb_index_5]
-    wif_index = [wif_index_1, wif_index_2, wif_index_3, wif_index_4, wif_index_5]
-    wihh_index = [wihh_index_1, wihh_index_2, wihh_index_3, wihh_index_4, wihh_index_5]
-    wihb_index = [wihb_index_1, wihb_index_2, wihb_index_3, wihb_index_4, wihb_index_5]
-    
     return ctf_index, cthh_index, cthb_index, wif_index, wihh_index, wihb_index
 
 
