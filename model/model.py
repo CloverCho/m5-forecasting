@@ -229,6 +229,9 @@ class Encoder(nn.Module):
 
         x, (hidden, cell) = self.lstm(x, (h_1, c_1))
 
+        # print('encoder')
+        # print(x.shape)
+
         # return hidden_n.reshape((self.n_features, self.embedding_dim))
         return x, hidden, cell
 
@@ -244,7 +247,8 @@ class Attention(nn.Module):
         # encoder_outputs = [src len, batch size, enc hid dim * 2]
 
         batch_size = encoder_outputs.shape[0]
-        src_len = encoder_outputs.shape[1]
+        # src_len = encoder_outputs.shape[1]
+        src_len = 1
 
         hidden = hidden[2:3, :, :]
 
@@ -296,13 +300,11 @@ class AttentionDecoder(nn.Module):
 
         a = a.unsqueeze(1)
 
-        # a = [batch size, 1, src len]
-
-        # encoder_outputs = encoder_outputs.permute(1, 0, 2)
-
-        # encoder_outputs = [batch size, src len, enc hid dim * 2]
-
         weighted = torch.bmm(a, encoder_outputs)
+
+
+        # print('decoder')
+        # print(x.shape)
 
         x = x.reshape((1, 1, self.num_classes))
 
@@ -340,20 +342,14 @@ class Seq2Seq(nn.Module):
         targets_ta = []
         # prev_output become the next input to the LSTM cell
         prev_output = prev_y
+        # print('decoder input')
         # print(prev_output.size())
 
-        # itearate over LSTM - according to the required output days
-        for out_days in range(self.output_length):
-            prev_x, prev_hidden, prev_cell = self.decoder(prev_output, hidden, cell, encoder_output)
-            hidden, cell = prev_hidden, prev_cell
-            prev_output = prev_x
+        prev_x, prev_hidden, prev_cell = self.decoder(prev_output, hidden, cell, encoder_output)
+        hidden, cell = prev_hidden, prev_cell
+        prev_output = prev_x
 
-            targets_ta.append(prev_x.reshape(self.num_classes))
-
-        targets = torch.stack(targets_ta)
-
-        return targets
-
+        return prev_x
 
 
 
