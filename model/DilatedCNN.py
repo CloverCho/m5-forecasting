@@ -123,4 +123,5 @@ class DilatedCNN(nn.Module):
 
 
 class CustomConv1d(nn.Module):
-    def __init__(self, in_channels, dilation_factor, kernel_size, nb_filters)
+    def __init__(self, in_channels, dilation_factor, kernel_size, nb_filters):
+        pass

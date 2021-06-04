@@ -101,10 +101,10 @@ class LSTM(nn.Module):
             self.num_layers, x.size(0), self.hidden_size).to(self.device))
 
         _, (hn, cn) = self.LSTM(x, (h_1, c_1))
-        print("hidden state shape is:",hn.size())
+        #print("hidden state shape is:",hn.size())
 
         final_state = hn.view(self.num_layers, x.size(0), self.hidden_size)[-1]
-        print("final state shape is:",final_state.shape)
+        #print("final state shape is:",final_state.shape)
         
         x0 = self.fc1(final_state)
         x0 = self.bn1(x0)
@@ -187,10 +187,10 @@ class GRU(nn.Module):
 
 
         _, hn = self.GRU(x, h_1)
-        print("hidden state shape is:",hn.size())
+        #print("hidden state shape is:",hn.size())
 
         final_state = hn.view(self.num_layers, x.size(0), self.hidden_size)[-1]
-        print("final state shape is:",final_state.shape)
+        #print("final state shape is:",final_state.shape)
 
         x0 = self.fc1(final_state)
         x0 = self.bn1(x0)

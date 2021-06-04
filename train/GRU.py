@@ -9,8 +9,8 @@ from fastprogress import master_bar, progress_bar
 
 class GRU_Train():
     def __init__(self, X, train_ratio=0.67, hidden_size=512):
-        # self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.device = torch.device('cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        #self.device = torch.device('cpu')
 
         seq_length = 28
         x, y = self.slidng_windows(X, seq_length)
@@ -49,6 +49,8 @@ class GRU_Train():
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=500, factor=0.5, min_lr=1e-7,
                                                                eps=1e-08)
 
+        print("GRU Train")
+
         # Train the model
         for epoch in progress_bar(range(num_epochs)):
             self.model.train()
@@ -61,7 +63,10 @@ class GRU_Train():
             vali_loss = criterion(valid, self.testY.to(self.device))
             scheduler.step(vali_loss)
 
-        return loss.cpu().item(), vali_loss.cpu().item()
+            loss_value = loss.cpu().item()
+            vali_value = vali_loss.cpu().item()
+            
+        return loss_value, vali_value
 
     def predict(self, pred_X):
 

@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 import pandas as pd
+import gc
+
 
 from sklearn.preprocessing import StandardScaler
 
@@ -20,10 +22,10 @@ def main():
     data_path = os.path.join(dir_path, './data')
 
     
-    #device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    device = torch.device('cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    #device = torch.device('cpu')
 
-    ctf_indexs, cthh_indexs, cthb_indexs, wif_indexs, wihh_indexs, wihb_indexs = make_cluster(data_path = data_path)
+    ctf_indexs, cthh_indexs, cthb_indexs, wif_indexs, wihh_indexs, wihb_indexs = make_cluster(data_path = data_path, n_clusters = 20)
     
 
     stv_path = os.path.join(data_path, './sales_train_validation.csv')
@@ -45,6 +47,7 @@ def main():
 
     for indexs in [ctf_indexs, cthh_indexs, cthb_indexs, wif_indexs, wihh_indexs, wihb_indexs]:
         for index in indexs:
+            
 
             X = stv.loc[index].astype(np.int16).T
             #print(X.head())
@@ -59,10 +62,14 @@ def main():
             X = scaler.transform(X)
             #print(X.shape)
 
+            
             pred_scaler = StandardScaler()
             pred_scaler = pred_scaler.fit(pred_X)
             pred_X = pred_scaler.transform(pred_X)
             #print(pred_X.shape)
+            
+
+            pred_X = scaler.transform(pred_X)
 
             train_ratio = 0.67
             hidden_size = 512
@@ -94,6 +101,7 @@ def main():
             ############# Prediction ###############
               
             pred_y = model_opt.predict(pred_X)                
+            pred_y = pred_scaler.inverse_transform(pred_y)
 
             print(pred_y[:5])
             submission.loc[index].iloc[:,1:] = pred_y

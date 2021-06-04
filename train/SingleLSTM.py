@@ -9,8 +9,8 @@ from fastprogress import master_bar, progress_bar
 
 class singleLSTM_Train():
     def __init__(self, X, train_ratio = 0.67, hidden_size = 512):
-        #self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.device = torch.device('cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        #self.device = torch.device('cpu')
        
         seq_length = 28
         x, y = self.slidng_windows(X, seq_length)
@@ -53,6 +53,7 @@ class singleLSTM_Train():
         optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=1e-5)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=500, factor=0.5, min_lr=1e-7, eps=1e-08)
 
+        print("SingleLSTM Train")
 
         # Train the model
         for epoch in progress_bar(range(num_epochs)):
