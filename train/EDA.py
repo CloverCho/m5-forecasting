@@ -104,20 +104,28 @@ class EDA_Train():
 
         self.model.eval()
         pred_data = torch.Tensor(np.expand_dims(np.array(pred_X), axis=0)).to(self.device)
+        # print('model input')
+        # print(pred_data.size())
 
-        pred_d1914 = self.model(pred_data, pred_data[self.seq_length-1:self.seq_length,:]).cpu().data.numpy()
+        # print('prev_y input')
+        prev_y = pred_data[0, self.seq_length-1:self.seq_length,:]
+        # print(prev_y.size())
+
+        pred_d1914 = self.model(pred_data, prev_y).cpu().data.numpy()
         pred_y = np.copy(pred_d1914)
 
-        print(pred_data.size())
-        print(pred_d1914.size())
-        print(pred_y.size())
+        
+        # print(pred_d1914)
 
         for i in range(1, 28):
             pred_data = np.array(pred_X[i:])
-            print(pred_data.shape)
+            print('---------------')
+            # print(pred_data.shape)
+            # print(pred_y.shape)
+
             pred_data = np.concatenate((pred_data, pred_y), axis=0)
             pred_data = torch.Tensor(np.expand_dims(pred_data, axis=0)).to(self.device)
-            pred_result = self.model(pred_data,pred_data[self.seq_length-1:self.seq_length,:]).cpu().data.numpy()
+            pred_result = self.model(pred_data,pred_data[0, self.seq_length-1:self.seq_length,:]).cpu().data.numpy()
             pred_y = np.concatenate((pred_y, pred_result), axis=0)
 
         pred_y = pred_y.T
