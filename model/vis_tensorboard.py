@@ -45,6 +45,16 @@ def main():
     model = singleRNN(num_classes=lstm_num_classes, input_size=lstm_input_size, hidden_size=hidden_size, num_layers=1)
     writer4.add_graph(model, lstm_input)
     writer4.close()
+    
+    writer5 = SummaryWriter()
+    EDA_input_size = 512
+    EDA_num_classes = 512
+    encoder_input = torch.Tensor(np.ones((28, 512), dtype=np.float))
+    decoder_input = torch.Tensor(np.ones((1, 512), dtype=np.float))
+
+    model = Seq2Seq(28, num_classes=EDA_num_classes, input_size=EDA_input_size, embedding_dim = hidden_size)
+    writer5.add_graph(model, (encoder_input, decoder_input))
+    writer5.close()
 
 
 if __name__ == "__main__":
