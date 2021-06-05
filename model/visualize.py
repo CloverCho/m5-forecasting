@@ -50,8 +50,15 @@ def main():
 
     for model in [model_singleLSTM, model_LSTM, model_singleGRU, model_GRU, model_singleRNN]:
         summary(model, torch.zeros((20, 28, 1262)))
+        
+    EDA_input_size = 512
+    EDA_num_classes = 512
+    encoder_input = torch.Tensor(np.ones((28, 512), dtype=np.float))
+    decoder_input = torch.Tensor(np.ones((1, 512), dtype=np.float))
 
-
+    model = Seq2Seq(28, num_classes=EDA_num_classes, input_size=EDA_input_size, embedding_dim = hidden_size)
+    graph = hl.build_graph(model, (encoder_input, decoder_input), transforms=transforms)
+    graph.save('EDA_hiddenlayer', format='png')
 
 
 if __name__ == "__main__":
