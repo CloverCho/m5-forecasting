@@ -319,8 +319,30 @@ def make_cluster(data_path = '../data', n_clusters = 5):
 
 
 if __name__ == '__main__':
-    _ = make_cluster()
+ 
+    data_path = '../data'
+    n_clusters = 20
+    ctf_indexs, cthh_indexs, cthb_indexs, wif_indexs, wihh_indexs, wihb_indexs = make_cluster(data_path=data_path, n_clusters=n_clusters)
+    
+    i = 0
 
+    stv_path = os.path.join(data_path, './sales_train_validation.csv')
+    stv = pd.read_csv(stv_path)
+    stv['clusterID'] = 0
+
+    for indexs in [ctf_indexs, cthh_indexs, cthb_indexs, wif_indexs, wihh_indexs, wihb_indexs]:
+        for index in indexs:
+            stv.iloc[index, -1] = i
+            i = i + 1
+
+
+    stv.to_csv(r'../data/modified_stv.csv', index=False)
+
+
+    print(stv.head(5))
+    
+    
+    
 
 
     
