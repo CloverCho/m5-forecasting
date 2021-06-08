@@ -61,12 +61,16 @@ def main():
             pred_X = ste.loc[index].astype(np.int16).T
             #print(pred_X.head())
 
+
+            lgbm_X = np.array(stv.loc[index].astype(np.int16).T)
             lgbm_pred_X = np.array(lgbm_ste.loc[index].astype(np.int16))
 
             scaler = StandardScaler()
             scaler = scaler.fit(X)
             X = scaler.transform(X)
             #print(X.shape)
+
+            
 
             
             pred_scaler = StandardScaler()
@@ -127,10 +131,9 @@ def main():
             submission.iloc[index,1:] = np.copy(pred_y)
 
             '''
-            
-            print(lgbm_pred_X.shape)
+            print(lgbm_X.shape)
             ########## LGBM ###################
-            model_lgbm = LGBM_Train(X, period=lgbm_period)
+            model_lgbm = LGBM_Train(lgbm_X, period=lgbm_period)
             model_lgbm.train()
             pred_y = model_lgbm.predict(lgbm_pred_X)
             #pred_y = lgbm_scaler.inverse_transform(pred_y.T)
@@ -139,7 +142,7 @@ def main():
             submission.iloc[index, 1:] = np.copy(pred_y)
 
             
-    submission.to_csv(r'./submission_2.csv', index=False)
+    submission.to_csv(r'./submission_Cho&Son_LGBM.csv', index=False)
 
 
 
