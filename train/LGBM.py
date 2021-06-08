@@ -11,8 +11,8 @@ from fastprogress import master_bar, progress_bar
 class LGBM_Train:
     def __init__(self, X, period=30):
 
-        # self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.device = torch.device('cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        #self.device = torch.device('cpu')
         self.data = X
         self.period = period
 
@@ -30,11 +30,11 @@ class LGBM_Train:
 
             for date in range(self.numDate - self.period):
                 
-                _x = self.data[ date : date + self.period, data]
-                _y = self.data[ date + self.period, data]
+                inputs.append(self.data[ date : date + self.period, data])
+                labels.append(self.data[ date + self.period, data])
             
-                inputs.append(_x)
-                labels.append(_y)
+                #inputs.append(_x)
+                #labels.append(_y)
 
         
         inputs = np.array(inputs)
@@ -45,7 +45,7 @@ class LGBM_Train:
         return inputs, labels
 
 
-    def train(self,  params = None, num_boost_round=2500, early_stopping_rounds=50, verbose_eval=100):
+    def train(self,  params = None, num_boost_round=200, early_stopping_rounds=50, verbose_eval=100):
 
 
         if params is not None:
@@ -63,21 +63,21 @@ class LGBM_Train:
                     'colsample_bytree': 0.75}
 
 
-        trainX, trainY = self.input_label_split() 
+        trainX, trainY = self.input_label_split()
+
         train_set = lgb.Dataset(trainX, trainY)
 
         self.model = lgb.train(self.params, train_set, num_boost_round = num_boost_round, early_stopping_rounds=early_stopping_rounds, valid_sets = [train_set], verbose_eval=verbose_eval)
 
 
-
     def predict(self, pred_X):
         
         pred_data = pred_X
-        
+
         for i in range(28):
             
             pred_y = self.model.predict(pred_data)
-            pred_data = np.concatenate((pred_data[:, 1:], pred_y), axis=1)
+            pred_data = np.concatenate((pred_data[:, 1:], np.expand_dims(pred_y, axis=1)), axis=1)
 
         pred_result =  pred_data[:, -28:].astype(int)
         pred_result[pred_result < 0] = 0

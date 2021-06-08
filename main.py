@@ -19,6 +19,14 @@ from train.EDA import EDA_Train
 
 def main():
 
+    ########### Parameters ###############
+    num_epochs = 200
+    lr = 1e-3
+    lgbm_period = 30
+    ######################################
+
+
+
     dir_path = os.path.dirname(os.path.realpath(__file__))
     data_path = os.path.join(dir_path, './data')
 
@@ -35,14 +43,11 @@ def main():
 
     stv = pd.read_csv(stv_path).iloc[:, 6:]
     ste = pd.read_csv(ste_path).iloc[:, -28:]
+    lgbm_ste = pd.read_csv(ste_path).iloc[:, -lgbm_period:]
     submission = pd.read_csv(sub_path)
 
 
-    ########### Parameters ###############
-    num_epochs = 200
-    lr = 1e-3
-    lgbm_period = 30
-    ######################################
+
 
 
 
@@ -56,7 +61,7 @@ def main():
             pred_X = ste.loc[index].astype(np.int16).T
             #print(pred_X.head())
 
-            lgbm_pred_X = ste.loc[index].astype(np.int16)
+            lgbm_pred_X = np.array(lgbm_ste.loc[index].astype(np.int16))
 
             scaler = StandardScaler()
             scaler = scaler.fit(X)
@@ -71,8 +76,16 @@ def main():
             print(pred_X.shape)
 
 
+            #lgbm_scaler = StandardScaler()
+            #lgbm_scaler = lgbm_scaler.fit(lgbm_pred_X)
+            #lgbm_pred_X = lgbm_scaler.transform(lgbm_pred_X)
+
+
+
             train_ratio = 0.67
             hidden_size = 512
+
+            '''
             
             model_lstm1 = singleLSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
             model_lstm2 = LSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
@@ -113,15 +126,19 @@ def main():
 
             submission.iloc[index,1:] = np.copy(pred_y)
 
-    
             '''
+            
+            print(lgbm_pred_X.shape)
             ########## LGBM ###################
             model_lgbm = LGBM_Train(X, period=lgbm_period)
             model_lgbm.train()
             pred_y = model_lgbm.predict(lgbm_pred_X)
-            print(pred_y[:5])
+            #pred_y = lgbm_scaler.inverse_transform(pred_y.T)
 
-            '''
+            print(pred_y[:5])
+            submission.iloc[index, 1:] = np.copy(pred_y)
+
+            
     submission.to_csv(r'./submission_2.csv', index=False)
 
 
