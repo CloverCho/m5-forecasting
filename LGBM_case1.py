@@ -16,6 +16,8 @@ import gc
 import os
 from tqdm import tqdm
 from scipy.sparse import csr_matrix
+import time
+
 
 for dirname, _, filenames in os.walk('./data'):
     for filename in filenames:
@@ -434,8 +436,15 @@ params = {
     'colsample_bytree': 0.75}
 
 # model estimation
+
+start_time = time.time() 
+
 model = lgb.train(params, train_set, num_boost_round = 2500, early_stopping_rounds = 50, 
                 valid_sets = [train_set, val_set], verbose_eval = 100, feval= wrmsse)
+
+end_time = time.time()
+
+print("Training time: {} seconds".format(end_time - start_time))
 val_pred = model.predict(x_val[features])
 val_score = np.sqrt(metrics.mean_squared_error(val_pred, y_val))
 print(f'Our val wrmsse score is {val_score}')

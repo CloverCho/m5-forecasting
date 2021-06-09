@@ -4,7 +4,7 @@ import torch.nn as nn
 import numpy as np
 import pandas as pd
 import gc
-
+import time
 
 from sklearn.preprocessing import StandardScaler
 
@@ -20,7 +20,7 @@ from train.EDA import EDA_Train
 def main():
 
     ########### Parameters ###############
-    num_epochs = 200
+    num_epochs = 10
     lr = 1e-3
     lgbm_period = 30
     ######################################
@@ -49,6 +49,7 @@ def main():
 
 
 
+    start_time = time.time()
 
 
     for indexs in [ctf_indexs, cthh_indexs, cthb_indexs, wif_indexs, wihh_indexs, wihb_indexs]:
@@ -89,7 +90,7 @@ def main():
             train_ratio = 0.67
             hidden_size = 512
 
-            '''
+            
             
             model_lstm1 = singleLSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
             model_lstm2 = LSTM_Train(X, train_ratio=train_ratio, hidden_size=hidden_size)
@@ -103,7 +104,8 @@ def main():
             vali_loss_opt = 987654321
 
             #models = [model_lstm1, model_lstm2, model_gru1, model_gru2, model_rnn, model_eda]
-            models = [model_lstm1, model_lstm2, model_gru1, model_gru2, model_rnn]
+            #models = [model_lstm1, model_lstm2, model_gru1, model_gru2, model_rnn]
+            models = [model_eda]
 
             for idx, model in enumerate(models):
                 loss, vali_loss = model.train(num_epochs=num_epochs, lr=lr)
@@ -130,19 +132,27 @@ def main():
 
             submission.iloc[index,1:] = np.copy(pred_y)
 
+            
+
+
             '''
-            print(lgbm_X.shape)
             ########## LGBM ###################
+            print(lgbm_X.shape)
             model_lgbm = LGBM_Train(lgbm_X, period=lgbm_period)
             model_lgbm.train()
             pred_y = model_lgbm.predict(lgbm_pred_X)
             #pred_y = lgbm_scaler.inverse_transform(pred_y.T)
 
-            print(pred_y[:5])
-            submission.iloc[index, 1:] = np.copy(pred_y)
 
+            print(pred_y[:5])
             
-    submission.to_csv(r'./submission_Cho&Son_LGBM.csv', index=False)
+            submission.iloc[index, 1:] = np.copy(pred_y)
+            '''
+            
+    end_time = time.time()
+    print("Training time: {} seconds".format(end_time - start_time))
+
+    submission.to_csv(r'./submission_CHOandSON_EDA.csv', index=False)
 
 
 
