@@ -110,9 +110,9 @@ def simple_fe(data):
     
     
     for size in [7, 30]:
-    data[f"rolling_mean_t{size}"] = data.groupby(["id"])["demand"].transform(
-        lambda x: x.shift(DAYS_PRED).rolling(size).mean()
-    )
+        data[f"rolling_mean_t{size}"] = data.groupby(["id"])["demand"].transform(
+            lambda x: x.shift(DAYS_PRED).rolling(size).mean()
+        )
     
     
     # time features
