@@ -27,9 +27,9 @@ for dirname, _, filenames in os.walk('./data'):
 def reduce_mem_usage(df, verbose=True):
     numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
     start_mem = df.memory_usage().sum() / 1024**2    
-    for col in df.columns: #columns毎に処理
+    for col in df.columns: 
         col_type = df[col].dtypes
-        if col_type in numerics: #numericsのデータ型の範囲内のときに処理を実行. データの最大最小値を元にデータ型を効率的なものに変更
+        if col_type in numerics:
             c_min = df[col].min()
             c_max = df[col].max()
             if str(col_type)[:3] == 'int':
@@ -94,7 +94,7 @@ def encode_categorical(df, cols):
 
 def simple_fe(data):
     
-    # demand features(過去の数量から変数生成)
+    # demand features
     
     for diff in range(30):
         #shift = DAYS_PRED + diff
@@ -105,7 +105,7 @@ def simple_fe(data):
     
     '''
     # time features
-    # 日付に関するデータ
+
     dt_col = "date"
     data[dt_col] = pd.to_datetime(data[dt_col])
     
@@ -158,8 +158,7 @@ d_name = ['d_' + str(i+1) for i in range(1913)]
 
 sales_train_val_values = sales_train_val[d_name].values
 
-# calculate the start position(first non-zero demand observed date) for each item / 商品の最初の売上日
-# 1-1914のdayの数列のうち, 売上が存在しない日を一旦0にし、0を9999に置換。そのうえでminimum numberを計算
+# calculate the start position(first non-zero demand observed date) for each item 
 tmp = np.tile(np.arange(1,1914),(sales_train_val_values.shape[0],1))
 df_tmp = ((sales_train_val_values>0) * tmp)
 
@@ -188,34 +187,34 @@ sales_train_val = sales_train_val[~sales_train_val.demand.isnull()]
 test1_rows = [row for row in submission['id'] if 'validation' in row]
 test2_rows = [row for row in submission['id'] if 'evaluation' in row]
 
-# submission fileのvalidation部分をtest1, ealuation部分をtest2として取得
+# submission file
 test1 = submission[submission['id'].isin(test1_rows)]
 test2 = submission[submission['id'].isin(test2_rows)]
 
 
-# test1, test2の列名の"F_X"の箇所をd_XXX"の形式に変更
+# test1, test2
 test1.columns = ["id"] + [f"d_{d}" for d in range(1914, 1914 + DAYS_PRED)]
 test2.columns = ["id"] + [f"d_{d}" for d in range(1942, 1942 + DAYS_PRED)]
 
-# test2のidの'_evaluation'を置換
-#test1['id'] = test1['id'].str.replace('_validation','')
+
+
 test2['id'] = test2['id'].str.replace('_evaluation','_validation')
 
 
-# idをキーにして, idの詳細部分をtest1, test2に結合する.
+
 test1 = test1.merge(product, how = 'left', on = 'id')
 test2 = test2.merge(product, how = 'left', on = 'id')
 
-# test1, test2をともにmelt処理する.（売上数量:demandは0）
+
 test1 = pd.melt(test1, id_vars = ['id', 'item_id', 'dept_id', 'cat_id', 'store_id', 'state_id', 'clusterID'], var_name = 'day', value_name = 'demand')
 test2 = pd.melt(test2, id_vars = ['id', 'item_id', 'dept_id', 'cat_id', 'store_id', 'state_id', 'clusterID'], var_name = 'day', value_name = 'demand')
 
-# validation部分と, evaluation部分がわかるようにpartという列を作り、 test1,test2のラベルを付ける。
+
 sales_train_val['part'] = 'train'
 test1['part'] = 'test1'
 test2['part'] = 'test2'
 
-# sales_train_valとtest1, test2の縦結合.
+
 data = pd.concat([sales_train_val, test1, test2], axis = 0)
 
 del sales_train_val, test1, test2
@@ -225,25 +224,24 @@ data = data[data['part'] != 'test2']
 gc.collect()
 
 
-#calendarの結合
-# drop some calendar features(不要な変数の削除:weekdayやwdayなどはdatetime変数から後ほど作成できる。)
+
 calendar.drop(['weekday', 'wday', 'month', 'year'], 
             inplace = True, axis = 1)
 
-# notebook crash with the entire dataset (maybee use tensorflow, dask, pyspark xD)(dayとdをキーにdataに結合)
+
 data = pd.merge(data, calendar, how = 'left', left_on = ['day'], right_on = ['d'])
 data.drop(['d', 'day'], inplace = True, axis = 1)
 
-# memoryの開放
+
 del  calendar
 gc.collect()
 
-#sell priceの結合
+
 # get the sell price data (this feature should be very important)
 data = data.merge(sell_prices, on = ['store_id', 'item_id', 'wm_yr_wk'], how = 'left')
 print('Our final dataset to train has {} rows and {} columns'.format(data.shape[0], data.shape[1]))
 
-# memoryの開放
+
 del  sell_prices
 gc.collect()
 
@@ -336,8 +334,7 @@ def weight_calc(data,product):
 
     sales_train_val = weight_mat_csr * sales_train_val[d_name].values
 
-    # calculate the start position(first non-zero demand observed date) for each item / 商品の最初の売上日
-    # 1-1914のdayの数列のうち, 売上が存在しない日を一旦0にし、0を9999に置換。そのうえでminimum numberを計算
+    # calculate the start position(first non-zero demand observed date) for each item 
     df_tmp = ((sales_train_val>0) * np.tile(np.arange(1,1914),(weight_mat_csr.shape[0],1)))
 
     start_no = np.min(np.where(df_tmp==0,9999,df_tmp),axis=1)-1
@@ -346,7 +343,7 @@ def weight_calc(data,product):
 
     sales_train_val = np.where(flag,np.nan,sales_train_val)
 
-    # denominator of RMSSE / RMSSEの分母
+    # denominator of RMSSE / RMSSE
     weight1 = np.nansum(np.diff(sales_train_val,axis=1)**2,axis=1)/(1913-start_no)
 
     # calculate the sales amount for each item/level
@@ -370,7 +367,7 @@ def wrmsse(preds, data):
     
     # this function is calculate for last 28 days to consider the non-zero demand period
     
-    # actual obserbed values / 正解ラベル
+    # actual obserbed values 
     y_true = data.get_label()
     
     y_true = y_true[-(NUM_ITEMS * DAYS_PRED):]
@@ -378,7 +375,7 @@ def wrmsse(preds, data):
     # number of columns
     num_col = DAYS_PRED
     
-    # reshape data to original array((NUM_ITEMS*num_col,1)->(NUM_ITEMS, num_col) ) / 推論の結果が 1 次元の配列になっているので直す
+    # reshape data to original array((NUM_ITEMS*num_col,1)->(NUM_ITEMS, num_col) ) 
     reshaped_preds = preds.reshape(num_col, NUM_ITEMS).T
     reshaped_true = y_true.reshape(num_col, NUM_ITEMS).T
     
@@ -396,7 +393,7 @@ def wrmsse(preds, data):
 
 def wrmsse_simple(preds, data):
     
-    # actual obserbed values / 正解ラベル
+    # actual obserbed values 
     y_true = data.get_label()
     
     y_true = y_true[-(NUM_ITEMS * DAYS_PRED):]
@@ -404,7 +401,7 @@ def wrmsse_simple(preds, data):
     # number of columns
     num_col = DAYS_PRED
     
-    # reshape data to original array((NUM_ITEMS*num_col,1)->(NUM_ITEMS, num_col) ) / 推論の結果が 1 次元の配列になっているので直す
+    # reshape data to original array((NUM_ITEMS*num_col,1)->(NUM_ITEMS, num_col) ) 
     reshaped_preds = preds.reshape(num_col, NUM_ITEMS).T
     reshaped_true = y_true.reshape(num_col, NUM_ITEMS).T
           
