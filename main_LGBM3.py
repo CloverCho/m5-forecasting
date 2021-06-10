@@ -95,8 +95,7 @@ def simple_fe(data):
     # demand features(過去の数量から変数生成)
     
     for diff in range(30):
-        #shift = DAYS_PRED + diff
-        shift = diff
+        shift = DAYS_PRED + diff
         data[f"shift_t{shift}"] = data.groupby(["id"])["demand"].transform(
             lambda x: x.shift(shift)
         )
@@ -269,7 +268,7 @@ features = [
 ]
 
 for diff in range(30):
-    features.append('shift_t{}'.format(diff))
+    features.append('shift_t{}'.format(DAYS_PRED+diff))
 
 
 
@@ -452,4 +451,4 @@ evaluation = submission[submission['id'].isin(evaluation_rows)]
 
 validation = submission[['id']].merge(predictions, on = 'id')
 final = pd.concat([validation, evaluation])
-final.to_csv('submission_CHOandSON_LGBM3.csv', index = False)
+final.to_csv('submission_CHOandSON_LGBM4.csv', index = False)
